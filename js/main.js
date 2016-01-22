@@ -6,6 +6,8 @@ var gravity = new THREE.Vector3(0, -15, 0);
 var position = new THREE.Vector3(0, 0, 10000);
 var centre = new THREE.Vector3(0, 0, 0);
 var up = new THREE.Vector3(0, 1, 0);
+var vector = new THREE.Vector3();
+var finish = false;
 
 var clock = new THREE.Clock();
 
@@ -22,6 +24,7 @@ var update = function(y, z){
 	velocity = new THREE.Vector3(0, y, z);
 	gravity = new THREE.Vector3(0, -10, 0);
 	position.set(0, 0, 10000);
+	finish = false;
 }
 
 function setupScene(){
@@ -51,15 +54,14 @@ function createObjects(){
 }
 
 function collisions(){
+	
 	box.updateMatrixWorld();
-	var worldPosition = box.matrixWorld;
-	console.log("y: ", worldPosition.y);
-	if(worldPosition.y <= 0){
-		worldPosition.y = 0;
+	vector.setFromMatrixPosition(box.matrixWorld);
+	console.log("y: ", vector.y);
+	if(vector.y <= -1){
+		finish = true;
 	}
 }
-
-
 
 function render(){
 	var delta = clock.getDelta();
@@ -68,15 +70,17 @@ function render(){
 		delta = 0.016;
 	}
 
+	if(!finish){
 
-	velocity.addScaledVector(gravity, delta);
-	position.add(velocity);
+		velocity.addScaledVector(gravity, delta);
+		position.add(velocity);
 
-	box.matrixAutoUpdate = false;
-	box.matrix.setPosition(position);
-	box.matrix.lookAt(centre, velocity, up);
+		box.matrixAutoUpdate = false;
+		box.matrix.setPosition(position);
+		box.matrix.lookAt(centre, velocity, up);
 
-	collisions();
+		collisions();
+	}
 
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
