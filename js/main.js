@@ -1,13 +1,17 @@
 var scene, camera, renderer;
 var plane, cylinder, box;
 
-var velocity = new THREE.Vector3(0, 35, -50);
-var gravity = new THREE.Vector3(0, -15, 0);
+var velocity = new THREE.Vector3(0, 55, -50);
+var gravity = new THREE.Vector3(0, -55, 0);
 var position = new THREE.Vector3(0, 0, 10000);
 var centre = new THREE.Vector3(0, 0, 0);
 var up = new THREE.Vector3(0, 1, 0);
 var vector = new THREE.Vector3();
 var finish = false;
+
+var up = new THREE.Vector3( 0, 1, 0 );
+var axis = new THREE.Vector3();
+var pt, radians, axis, tangent;
 
 var clock = new THREE.Clock();
 
@@ -25,6 +29,12 @@ var update = function(y, z){
 	gravity = new THREE.Vector3(0, -10, 0);
 	position.set(0, 0, 10000);
 	finish = false;
+}
+
+var updateCamera = function(x, y, z){
+	camera.position.x = x;
+	camera.position.y = y;
+	camera.position.z = z;
 }
 
 function setupScene(){
@@ -75,11 +85,14 @@ function render(){
 		velocity.addScaledVector(gravity, delta);
 		position.add(velocity);
 
-		box.matrixAutoUpdate = false;
-		box.matrix.setPosition(position);
-		box.matrix.lookAt(centre, velocity, up);
+		var v = velocity.clone().normalize();
 
-		collisions();
+		axis.crossVectors(up, v).normalize();
+		radians = Math.acos(up.dot(v));
+		box.quaternion.setFromAxisAngle(axis, radians);
+
+		box.position.set(position.x, position.y, position.z);
+		// collisions();
 	}
 
 	requestAnimationFrame(render);
