@@ -1,8 +1,8 @@
 var scene, camera, renderer;
-var plane, cylinder, box;
+var plane, cylinder, box, arrow;
 
-var velocity = new THREE.Vector3(0, 55, -50);
-var gravity = new THREE.Vector3(0, -55, 0);
+var velocity = new THREE.Vector3(0, 35, -70);
+var gravity = new THREE.Vector3(0, -10, 0);
 var position = new THREE.Vector3(0, 0, 10000);
 var centre = new THREE.Vector3(0, 0, 0);
 var up = new THREE.Vector3(0, 1, 0);
@@ -20,8 +20,22 @@ init();
 function init(){
 	setupScene();
 	createObjects();
-	
-	render();
+
+	loadModel();
+}
+
+function loadModel(){
+	var scale = 10;
+	var loader = new THREE.JSONLoader();
+	loader.load('../model/arrow.json', function(geometry){
+		arrow = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xffffff}));
+		arrow.name = 'arrow';
+		geometry.rotateZ(THREE.Math.degToRad(90));
+		arrow.scale.set(scale, scale, scale);
+		scene.add(arrow);
+		
+		render();
+	})
 }
 
 var update = function(y, z){
@@ -40,9 +54,9 @@ var updateCamera = function(x, y, z){
 function setupScene(){
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 40000);
-	camera.position.x = 20000;
-	camera.position.y = 1500;
-	camera.position.z = 0;
+	camera.position.x = 3500;
+	camera.position.y = 2500;
+	camera.position.z = 12000;
 	camera.lookAt(scene.position);
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
@@ -55,6 +69,7 @@ function createObjects(){
 	var material = new THREE.MeshBasicMaterial({color: 0x884422});
 	plane = new THREE.Mesh(geometry, material);
 	plane.rotateOnAxis(new THREE.Vector3(1, 0, 0), THREE.Math.degToRad(-90));
+	plane.name = 'plane';
 	scene.add(plane);
 
 	var geometry = new THREE.BoxGeometry(400, 400, 400);
@@ -89,9 +104,9 @@ function render(){
 
 		axis.crossVectors(up, v).normalize();
 		radians = Math.acos(up.dot(v));
-		box.quaternion.setFromAxisAngle(axis, radians);
+		arrow.quaternion.setFromAxisAngle(axis, radians);
 
-		box.position.set(position.x, position.y, position.z);
+		arrow.position.set(position.x, position.y, position.z);
 		// collisions();
 	}
 
