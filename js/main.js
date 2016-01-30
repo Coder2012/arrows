@@ -77,8 +77,8 @@ function loadModel(){
 	});
 }
 
-var update = function(y, z){
-	velocity = new THREE.Vector3(0, y, z);
+var update = function(coords){
+	velocity = new THREE.Vector3(coords.x, coords.y, coords.z);
 	gravity = new THREE.Vector3(0, -10, 0);
 	position.set(0, 0, 10000);
 	finish = false;
