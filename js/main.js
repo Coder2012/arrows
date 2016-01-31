@@ -146,9 +146,18 @@ function createObjects(){
 
 	var scale = 400;
 	var geometry = models['turret'];
+
 	geometry.rotateX(THREE.Math.degToRad(-90));
-	turret = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xffffff, shading: THREE.FlatShading }));
+	turret = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xffffff }));
 	turret.name = 'turret';
+
+	turret.traverse( function ( child ) {
+        if ( child instanceof THREE.Mesh ) {
+            child.material = new THREE.MeshLambertMaterial( { color: 0x448800 });
+            child.geometry.computeVertexNormals();
+            child.material.shading = THREE.FlatShading;
+        }
+    } );
 
 	turret.position.z = 8000;
 	turret.scale.set(scale, scale, scale);
