@@ -8,9 +8,13 @@ var Settings = function() {
   this.cameraX = 3500;
   this.cameraY = 2500;
   this.cameraZ = 12000;
+  this.turretX = 0;
+  this.turretY = 0;
+
   this.reset = function(){
     owner.update(this.y, this.z);
   }
+
 };
 
 window.onload = function() {
@@ -19,6 +23,8 @@ window.onload = function() {
   ctrlX = gui.add(settings, 'x', -30, 30);
   ctrlY = gui.add(settings, 'y', 0, 60);
   ctrlZ = gui.add(settings, 'z', -400, 0);
+  ctrlTurretX = gui.add(settings, 'turretX', 0, 90);
+  ctrlTurretY = gui.add(settings, 'turretY', -45, 45);
   ctrlCameraX = gui.add(settings, 'cameraX', 0, 5000);
   ctrlCameraY = gui.add(settings, 'cameraY', 0, 5000);
   ctrlCameraZ = gui.add(settings, 'cameraZ', 0, 15000);
@@ -37,6 +43,16 @@ window.onload = function() {
   ctrlZ.onFinishChange(function(value) {
       settings.z = value;
       owner.update(settings);
+  });
+
+  ctrlTurretX.onFinishChange(function(value) {
+      settings.turretX = value;
+      owner.updateTurret(settings);
+  });
+
+  ctrlTurretY.onFinishChange(function(value) {
+      settings.turretY = value;
+      owner.updateTurret(settings);
   });
 
   ctrlCameraX.onFinishChange(function(value) {

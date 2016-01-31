@@ -1,0 +1,23 @@
+{
+  "name": "arrows",
+  "description": "HTML5 Game Development",
+  "maintainers": [
+    {
+      "name": "Neil Brown",
+      "email": "neilbrown08@hotmail.com",
+      "web": ""
+    }
+  ],
+  "scripts": {
+    "bundle-js": "browserify js/main.js -o build/js/bundle.js"
+  },
+  "devDependencies": {
+    "browserify": "^10.2.4"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/Coder2012/arrows.git"
+    }
+  ]
+}

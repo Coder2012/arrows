@@ -1,11 +1,12 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var scene, camera, renderer;
-var plane, cylinder, turret, arrow;
+var plane, cylinder, box, arrow;
 
 var textures = [], models = [], deps = [];
 
 var velocity = new THREE.Vector3(0, 35, -70);
 var gravity = new THREE.Vector3(0, -10, 10);
-var position = new THREE.Vector3(0, 0, 8000);
+var position = new THREE.Vector3(0, 0, 10000);
 var centre = new THREE.Vector3(0, 0, 0);
 var up = new THREE.Vector3(0, 1, 0);
 var vector = new THREE.Vector3();
@@ -24,7 +25,7 @@ init();
 function init(){
 	setupScene();
 
-	loadArrow();
+	loadModel();
 	loadItems();
 
 	$.when.apply(this, deps).done(function(){
@@ -36,7 +37,6 @@ function init(){
 }
 
 function loadItems(){
-	deps.push(loadModel('turret', 'turret.json'));
 	deps.push(loadTexture('metal_diffuse', 'metal_diffuse.jpg'));
 	deps.push(loadTexture('metal_specular', 'metal_specular.jpg'));
 	deps.push(loadTexture('metal_normal', 'metal_normal.jpg'));
@@ -66,7 +66,7 @@ function loadModel(name, path){
 	return deferred.promise();
 }
 
-function loadArrow(){
+function loadModel(){
 	var scale = 10;
 	var loader = new THREE.JSONLoader();
 	loader.load('../model/arrow.json', function(geometry){
@@ -81,7 +81,7 @@ function loadArrow(){
 var update = function(coords){
 	velocity = new THREE.Vector3(coords.x, coords.y, coords.z);
 	gravity = new THREE.Vector3(0, -10, 0);
-	position.set(0, 0, 8000);
+	position.set(0, 0, 10000);
 	finish = false;
 }
 
@@ -89,11 +89,6 @@ var updateCamera = function(x, y, z){
 	camera.position.x = x;
 	camera.position.y = y;
 	camera.position.z = z;
-}
-
-var updateTurret = function(coords){
-	turret.rotation.x = THREE.Math.degToRad(coords.turretX);
-	turret.rotation.y = THREE.Math.degToRad(coords.turretY);
 }
 
 function setupScene(){
@@ -104,7 +99,7 @@ function setupScene(){
 	camera.position.z = 12000;
 	camera.lookAt(scene.position);
 
-	var directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+	var directionalLight = new THREE.DirectionalLight( 0xffffff, 3 );
 	directionalLight.position.set( 10, 10, 0 );
 	scene.add( directionalLight );
 
@@ -144,15 +139,10 @@ function createObjects(){
 	plane.name = 'plane';
 	scene.add(plane);
 
-	var scale = 400;
-	var geometry = models['turret'];
-	geometry.rotateX(THREE.Math.degToRad(-90));
-	turret = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xffffff, shading: THREE.FlatShading }));
-	turret.name = 'turret';
-
-	turret.position.z = 8000;
-	turret.scale.set(scale, scale, scale);
-	scene.add(turret);
+	var geometry = new THREE.BoxGeometry(400, 400, 400);
+	var material = new THREE.MeshBasicMaterial({color: 0x008822, wireframe: true});
+	box = new THREE.Mesh(geometry, material);
+	scene.add(box);
 }
 
 function collisions(){
@@ -190,3 +180,4 @@ function render(){
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
+},{}]},{},[1]);
