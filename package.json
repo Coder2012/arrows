@@ -9,7 +9,8 @@
     }
   ],
   "scripts": {
-    "bundle-js": "browserify js/main.js -o build/js/bundle.js"
+    "bundle-js": "browserify js/main.js -o js/bundle.js",
+    "watch-js": "watchify js/main.js -o js/bundle.js -v"
   },
   "devDependencies": {
     "browserify": "^10.2.4"
@@ -19,5 +20,10 @@
       "type": "git",
       "url": "https://github.com/Coder2012/arrows.git"
     }
-  ]
+  ],
+  "dependencies": {
+    "jquery-browserify": "^1.8.1",
+    "three": "^0.73.2",
+    "watchify": "^3.7.0"
+  }
 }

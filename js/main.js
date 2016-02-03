@@ -1,7 +1,11 @@
+var $ = require('../js/lib/jQuery');
+var THREE = require('../js/lib/three');
+var loader = require('./loader');
+
 var scene, camera, renderer;
 var plane, cylinder, turret, arrow;
 
-var textures = [], models = [], deps = [];
+var loader;
 
 var velocity = new THREE.Vector3(0, 35, -70);
 var gravity = new THREE.Vector3(0, -10, 10);
@@ -17,53 +21,28 @@ var pt, radians, axis, tangent;
 
 var clock = new THREE.Clock();
 
-
-
 init();
 
 function init(){
 	setupScene();
 
-	loadArrow();
 	loadItems();
-
-	$.when.apply(this, deps).done(function(){
-		console.log("loaded: ", textures);
-
-		createObjects();
-		render();
-	});
 }
 
 function loadItems(){
-	deps.push(loadModel('turret', 'turret.json'));
-	deps.push(loadTexture('metal_diffuse', 'metal_diffuse.jpg'));
-	deps.push(loadTexture('metal_specular', 'metal_specular.jpg'));
-	deps.push(loadTexture('metal_normal', 'metal_normal.jpg'));
-}
 
-function loadTexture(name, path){
-	var deferred = $.Deferred();
+	var items = [
+		{name: 'turret', path: 'turret.json', type: 'model'},
+		{name: 'arrow', path: 'arrow.json', type: 'model'},
+		{name: 'metal_diffuse', path: 'metal_diffuse.jpg', type: 'texture'},
+		{name: 'metal_specular', path: 'metal_specular.jpg', type: 'texture'},
+		{name: 'metal_normal', path: 'metal_normal.jpg', type: 'texture'}
+	]
 
-	var loader = new THREE.TextureLoader();
-	loader.load('../img/' + path, function(texture){
-		textures[name] = texture;
-		deferred.resolve();
-	});
-
-	return deferred.promise();
-}
-
-function loadModel(name, path){
-	var deferred = $.Deferred();
-
-	var loader = new THREE.JSONLoader();
-	loader.load('../model/' + path, function(geometry){
-		models[name] = geometry;
-		deferred.resolve();
-	});
-
-	return deferred.promise();
+	loader.load(items).done(function(){
+		createObjects();
+		render();
+	})
 }
 
 function loadArrow(){
@@ -121,9 +100,9 @@ function createObjects(){
 		color: 0xdddddd,
 		specular: 0x222222,
 		shininess: 55,
-		map: textures['metal_diffuse'],
-		specularMap: textures['metal_specular'],
-		normalMap: textures['metal_normal'],
+		map: loader.getTexture('metal_diffuse'),
+		specularMap: loader.getTexture('metal_specular'),
+		normalMap: loader.getTexture('metal_normal'),
 		normalScale: new THREE.Vector2( 1, 1 )
 	} );
 
@@ -145,8 +124,7 @@ function createObjects(){
 	scene.add(plane);
 
 	var scale = 400;
-	var geometry = models['turret'];
-
+	var geometry = loader.getModel('turret');
 	geometry.rotateX(THREE.Math.degToRad(-90));
 	turret = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xffffff }));
 	turret.name = 'turret';
@@ -162,6 +140,14 @@ function createObjects(){
 	turret.position.z = 8000;
 	turret.scale.set(scale, scale, scale);
 	scene.add(turret);
+
+	scale = 10;
+	geometry = loader.getModel('arrow');
+	arrow = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0x628297}));
+	arrow.name = 'arrow';
+	geometry.rotateZ(THREE.Math.degToRad(90));
+	arrow.scale.set(scale, scale, scale);
+	scene.add(arrow);
 }
 
 function collisions(){
@@ -199,3 +185,79 @@ function render(){
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
+
+//-------------------------------------------------------
+
+var settings, gui, ctrlX, ctrlY;
+
+var Settings = function() {
+  this.x = 0,
+  this.y = 35,
+  this.z = -70,
+  this.cameraX = 3500;
+  this.cameraY = 2500;
+  this.cameraZ = 12000;
+  this.turretX = 0;
+  this.turretY = 0;
+
+  this.reset = function(){
+    update(this.y, this.z);
+  }
+
+};
+
+
+  settings = new Settings();
+  gui = new dat.GUI();
+  ctrlX = gui.add(settings, 'x', -30, 30);
+  ctrlY = gui.add(settings, 'y', 0, 60);
+  ctrlZ = gui.add(settings, 'z', -400, 0);
+  ctrlTurretX = gui.add(settings, 'turretX', 0, 90);
+  ctrlTurretY = gui.add(settings, 'turretY', -45, 45);
+  ctrlCameraX = gui.add(settings, 'cameraX', 0, 5000);
+  ctrlCameraY = gui.add(settings, 'cameraY', 0, 5000);
+  ctrlCameraZ = gui.add(settings, 'cameraZ', 0, 15000);
+  gui.add(settings, 'reset');
+
+  ctrlX.onFinishChange(function(value) {
+      settings.x = value;
+      update(settings);
+  });
+
+  ctrlY.onFinishChange(function(value) {
+      settings.y = value;
+      update(settings);
+  });
+
+  ctrlZ.onFinishChange(function(value) {
+      settings.z = value;
+      update(settings);
+  });
+
+  ctrlTurretX.onFinishChange(function(value) {
+      settings.turretX = value;
+      updateTurret(settings);
+  });
+
+  ctrlTurretY.onFinishChange(function(value) {
+      settings.turretY = value;
+      updateTurret(settings);
+  });
+
+  ctrlCameraX.onFinishChange(function(value) {
+      settings.cameraX = value;
+      updateCamera(settings.cameraX, settings.cameraY, settings.cameraZ);
+  });
+
+  ctrlCameraY.onFinishChange(function(value) {
+      settings.cameraY = value;
+      updateCamera(settings.cameraX, settings.cameraY, settings.cameraZ);
+  });
+
+  ctrlCameraZ.onFinishChange(function(value) {
+      settings.cameraZ = value;
+      updateCamera(settings.cameraX, settings.cameraY, settings.cameraZ);
+  });
+
+
+//--------------------------------------------------------
